@@ -12,10 +12,11 @@ import (
 )
 
 func consultaIndicativos(username, password, uf, class string, webDriver selenium.WebDriver) []map[string]string {
+	webDriver.SetImplicitWaitTimeout(10 * time.Second)
 	webDriver.Get(anatelSCRAURL)
 	certs := make([]map[string]string, 0)
 
-	log.Println("Getting SISLogin")
+	//log.Println("Getting SISLogin")
 	elem, err := webDriver.FindElement(selenium.ByID, "SISLogin")
 	if err != nil {
 		panic(err)
@@ -23,7 +24,7 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 
 	elem.SendKeys(username)
 
-	log.Println("Getting SISSenha")
+	//log.Println("Getting SISSenha")
 	elem, err = webDriver.FindElement(selenium.ByID, "SISSenha")
 	if err != nil {
 		panic(err)
@@ -38,9 +39,9 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 
 	elem.Click()
 
-	SeleniumWait(webDriver, 100 * time.Millisecond)
+	SeleniumWait(webDriver, 2000 * time.Millisecond)
 
-	log.Println("Acessing Indicativos")
+	//log.Println("Acessing Indicativos")
 	err = webDriver.Get(anatelSCRAIndicativo)
 
 	if err != nil {
@@ -125,7 +126,7 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 		higherNumber = int(math.Max(float64(higherNumber), float64(v)))
 	}
 
-	log.Println("Number of registros:", higherNumber)
+	//log.Println("Number of registros:", higherNumber)
 
 	elem, err = webDriver.FindElement(selenium.ByID, "NumReg")
 
@@ -180,7 +181,9 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 			s := td.Text()
 
 			certs = append(certs, map[string]string{
-				"indicativo": CleanString(s),
+				"Indicativo": CleanString(s),
+				"UF": uf,
+				"Categoria/Classe": class,
 			})
 		}
 	}

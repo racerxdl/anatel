@@ -3,13 +3,15 @@ package main
 import (
 	"log"
 	"github.com/tebeka/selenium"
+	"time"
 )
 
 func consultaCertificado(cpfCnpj string, webDriver selenium.WebDriver) []map[string]string {
+	webDriver.SetImplicitWaitTimeout(2 * time.Second)
 	webDriver.Get(anatelConsultaCertificadoURL)
 	certs := make([]map[string]string, 0)
 
-	log.Println("Getting pNumCnpjCpf")
+	//log.Println("Getting pNumCnpjCpf")
 	elem, err := webDriver.FindElement(selenium.ByID, "pNumCnpjCpf")
 	if err != nil {
 		panic(err)
