@@ -44,7 +44,7 @@ func OnNewTestDate(data eventmanager.NewTestDateEventData) {
 }
 
 func main() {
-	hubUrl := "http://localhost:4444/wd/hub"
+	hubUrl := os.Getenv("SELENOID_URL")
 
 	var webDriver selenium.WebDriver
 	var err error
@@ -74,7 +74,7 @@ func main() {
 
 	caps := selenium.Capabilities(map[string]interface{}{
 		"browserName": "chrome",
-		"enableVideo": true,
+		//"enableVideo": true,
 		"screenResolution": "1280x1024x24",
 	})
 
