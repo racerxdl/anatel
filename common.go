@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 	"github.com/racerxdl/anatel/eventmanager"
+	"github.com/racerxdl/anatel/telegram"
 )
 
 const (
@@ -12,6 +13,13 @@ const (
 	ClassB = "Classe B"
 	ClassA = "Classe A"
 )
+
+var States = []string {
+	"AC", "AL", "AM", "AP", "BA", "CE", "DF",
+	"ES", "GO", "MA", "MG", "MS", "MT", "PA",
+	"PB", "PE", "PI", "PR", "RJ", "RN", "RO",
+	"RR", "RS", "SC", "SE", "SP", "TO",
+}
 
 const (
 	anatelSCRAURL = "https://sistemas.anatel.gov.br/SCRA/"
@@ -43,3 +51,4 @@ func Map2Str(vs []map[string]string, f func(map[string]string) string) []string 
 }
 
 var eventManager = eventmanager.New()
+var telBot = telegram.New()

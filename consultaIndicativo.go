@@ -12,6 +12,10 @@ func consultaIndicativoArray(indicativos []string, driver selenium.WebDriver) []
 	for i := 0; i < len(indicativos); i++ {
 		log.Println("Fetching data for", indicativos[i])
 		result = append(result, consultaIndicativo(indicativos[i], driver)...)
+		if i % 64 == 63 {
+			log.Println("Waiting 5 seconds before next batch")
+			time.Sleep(time.Second * 5)
+		}
 	}
 	return result
 }

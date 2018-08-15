@@ -6,6 +6,9 @@ import (
 	"github.com/tebeka/selenium/chrome"
 	"time"
 	"github.com/racerxdl/anatel/eventmanager"
+	"fmt"
+	"os"
+	"strings"
 )
 
 
@@ -27,6 +30,17 @@ func OnNewStation(data eventmanager.NewStationEventData) {
 
 func OnNewTestDate(data eventmanager.NewTestDateEventData) {
 	log.Printf("New test in %s at %s for %s\n", data.TestDate.String(), data.StartTime, data.Certificates)
+	telBot.SendMessage(
+		fmt.Sprintf("Nova prova em *%s* para _%s_ ! Ela começa as *%s* do dia *%s* e será em *%s*.\nTotal de Vagas: *%s*\nEncerramento das Inscrições: *%s*",
+			data.Region,
+			data.Certificates,
+			data.StartTime,
+			data.TestDate.Format("02/01/2006"),
+			data.Address,
+			data.MaxVacancies,
+			data.InscriptionEndDate.Format("02/01/2006"),
+		),
+	)
 }
 
 func main() {
@@ -71,7 +85,11 @@ func main() {
 		panic(err)
 	}
 
-	defer webDriver.Quit()
+	defer func() {
+		if webDriver != nil {
+			webDriver.Quit()
+		}
+	}()
 
 	window, _ := webDriver.CurrentWindowHandle()
 
@@ -79,15 +97,56 @@ func main() {
 	webDriver.SetImplicitWaitTimeout(5 * time.Second)
 	webDriver.ResizeWindow(window, 1280, 1024)
 
-	// UpdateStationsFlow(db, webDriver)
+	state := os.Getenv("STATE")
+	mode := os.Getenv("MODE")
 
-	//z := consultaAgenda("-----", "----", "SP", webDriver)
+	checkstateRaw := strings.Split(state, ",")
+	checkstates := make([]string, 0)
 
-	GetNextTests("----", "----",  "SP", db, webDriver)
+	for i := 0; i < len(checkstateRaw); i++ {
+		s := CleanString(checkstateRaw[i])
 
-	//z := consultaCertificado("-----", webDriver)
-	//z :=  consultaIndicativos("----", "----", "SP", ClassC, webDriver)
-	//z := consultaIndicativoArray([]string {"PY2KSC", "PY2KJP"}, webDriver)
-	//v, _ := json.MarshalIndent(z, "", "    ")
-	//log.Println(string(v))
+		if len(s) == 0 || IndexOfString(s, States) == -1 {
+			log.Println("Invalid state: ", s)
+			continue
+		}
+
+		checkstates = append(checkstates, s)
+	}
+
+	if len(checkstates) == 0 {
+		panic("No valid states provided.")
+	}
+
+	log.Println("Starting checks for state", state, "with mode", mode)
+
+	if mode == "tests" || mode == "all" {
+		log.Println("Checking next 6 month tests")
+		// region Get Tests
+		for i := 0; i < len(checkstates); i++ {
+			state := checkstates[i]
+			log.Println("Checking tests for", state)
+			GetNextTests(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, db, webDriver)
+			webDriver.DeleteAllCookies() // Force login again
+		}
+	}
+
+	// endregion
+
+	if mode == "callsign" || mode == "all" {
+		// region Update Callsigns
+		log.Println("Checking callsigns")
+		for i := 0; i < len(checkstates); i++ {
+			state := checkstates[i]
+			log.Println("Checking callsigns for", state)
+			UpdateStationsFlow(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, db, webDriver)
+			webDriver.DeleteAllCookies() // Force login again
+		}
+
+		// endregion
+	}
+
+	log.Println("Finished all tasks. Waiting for notifications")
+	time.Sleep(time.Second * 60)
+	log.Println("Closing")
 }

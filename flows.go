@@ -6,26 +6,49 @@ import (
 	"github.com/tebeka/selenium"
 	"github.com/jinzhu/gorm"
 	"time"
+	"fmt"
 )
 
 func UpdateStationsFlow(username, password, uf string, db *gorm.DB, driver selenium.WebDriver) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Panic Recovered", r)
+		}
+	}()
+	driver.DeleteAllCookies()
 	log.Println("Fetching callsigns")
 	callsignsRaw := consultaIndicativos(username, password, uf, ClassC, driver)
 
 	log.Println("Santizing Callsigns")
-	callSigns := models.MapCallsignRawData(callsignsRaw[:11])
+	callSigns := models.MapCallsignRawData(callsignsRaw)
 
-	log.Println("Writting Callsigns")
+	nc := make(chan []int)
 
-	newCallsigns := WriteCallSigns(callSigns, db)
+	go func() {
+		log.Println("Writting Callsigns")
+		newCallsigns := WriteCallSigns(callSigns, db)
+		nc <- newCallsigns
+	}()
 
 	log.Println("Fetching Extended Data")
 
 	extDataRaw := consultaIndicativoArray(models.CallSignArrayToString(callSigns), driver)
 	extData := models.MapStationRawData(extDataRaw)
 
-	log.Println("Writting Station Data")
-	newStations := WriteStationData(extData, db)
+	ns := make(chan []int)
+
+	go func() {
+		log.Println("Writting Station Data")
+		newStations := WriteStationData(extData, db)
+		ns <- newStations
+	}()
+
+	log.Println("Waiting for Station / Callsign data to be written")
+
+	newCallsigns := <- nc
+	newStations := <- ns
+
+	log.Println("Triggering Notifications")
 
 	triggerStationCallSignsNotifications(newCallsigns, newStations, callSigns, extData, db)
 }
@@ -33,9 +56,16 @@ func UpdateStationsFlow(username, password, uf string, db *gorm.DB, driver selen
 const testCheckMonths = 6
 
 func GetNextTests(username, password, uf string, db *gorm.DB, driver selenium.WebDriver) {
-	startTime := time.Now().Add(-time.Hour * 24 * 30)
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+		}
+	}()
 
-	startTime = startTime.Add(-time.Hour * 24 * time.Duration(startTime.Day() - 1)) // Reset for the first day of month
+	driver.DeleteAllCookies()
+	startTime := time.Now() // .Add(-time.Hour * 24 * 30)
+
+	//startTime = startTime.Add(-time.Hour * 24 * time.Duration(startTime.Day() - 1)) // Reset for the first day of month
 
 	testsRaw := make([]map[string]string, 0)
 
