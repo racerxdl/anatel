@@ -7,8 +7,16 @@ import (
 	"log"
 )
 
-func consultaIndicativoArray(indicativos []string, driver selenium.WebDriver) []map[string]string {
-	result := make([]map[string]string, 0)
+func consultaIndicativoArray(indicativos []string, driver selenium.WebDriver) (result []map[string]string) {
+	result = make([]map[string]string, 0)
+
+	defer func() {
+		if r := recover(); r != nil {
+			// Recover and return partial
+			log.Println("Error:", r)
+		}
+	}()
+
 	for i := 0; i < len(indicativos); i++ {
 		log.Println("Fetching data for", indicativos[i])
 		result = append(result, consultaIndicativo(indicativos[i], driver)...)

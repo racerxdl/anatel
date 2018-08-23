@@ -138,7 +138,7 @@ func Raw2CallsignData(raw map[string]string) CallSign {
 		Callsign: raw[callsignTag],
 		Region: raw[regionTag],
 		Class: raw[classTag],
-		LastUpdated: time.Now(),
+		LastUpdated: time.Unix(0, 0),
 		FirstSaw: time.Now(),
 	}
 }

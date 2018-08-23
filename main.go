@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"strconv"
 )
 
 
@@ -43,11 +44,39 @@ func OnNewTestDate(data eventmanager.NewTestDateEventData) {
 	)
 }
 
-func main() {
+func CreateWebDriver() selenium.WebDriver {
+	var webDriver selenium.WebDriver
+	var enableVideoStr = os.Getenv("ENABLE_VIDEO")
+	var enableVideo = false
+
+	if enableVideoStr != "" {
+		var err error
+		enableVideo, err = strconv.ParseBool(enableVideoStr)
+		if err != nil {
+			panic(fmt.Sprintf("Error parsing ENABLE_VIDEO: %s", err))
+		}
+	}
+
 	hubUrl := os.Getenv("SELENOID_URL")
 
-	var webDriver selenium.WebDriver
 	var err error
+	caps := selenium.Capabilities(map[string]interface{}{
+		"browserName": "chrome",
+		"enableVideo": enableVideo,
+		"screenResolution": "1280x1024x24",
+	})
+
+	caps.AddChrome(chrome.Capabilities{})
+
+	log.Println("Initializing Remote")
+	if webDriver, err = selenium.NewRemote(caps, hubUrl); err != nil {
+		panic(err)
+	}
+
+	return webDriver
+}
+
+func main() {
 
 	eventManager.AddHandler(eventmanager.EvOnNewCallsign, newCallsign)
 	eventManager.AddHandler(eventmanager.EvOnNewStation, newStation)
@@ -72,18 +101,7 @@ func main() {
 
 	defer db.Close()
 
-	caps := selenium.Capabilities(map[string]interface{}{
-		"browserName": "chrome",
-		//"enableVideo": true,
-		"screenResolution": "1280x1024x24",
-	})
-
-	caps.AddChrome(chrome.Capabilities{})
-
-	log.Println("Initializing Remote")
-	if webDriver, err = selenium.NewRemote(caps, hubUrl); err != nil {
-		panic(err)
-	}
+	webDriver := CreateWebDriver()
 
 	defer func() {
 		if webDriver != nil {
@@ -133,14 +151,27 @@ func main() {
 
 	// endregion
 
+	var classes = []string {ClassC, ClassB, ClassA}
+
 	if mode == "callsign" || mode == "all" {
 		// region Update Callsigns
 		log.Println("Checking callsigns")
 		for i := 0; i < len(checkstates); i++ {
 			state := checkstates[i]
-			log.Println("Checking callsigns for", state)
-			UpdateStationsFlow(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, db, webDriver)
-			webDriver.DeleteAllCookies() // Force login again
+			for z := 0; z < len(classes); z++ {
+				class := classes[z]
+				log.Println("Checking callsigns for", state, class)
+				// region Class C
+				UpdateCallSigns(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, class, db, webDriver)
+				webDriver.DeleteAllCookies()
+				webDriver.Close()
+				webDriver = CreateWebDriver()
+				UpdateStationsFlow(state, db, webDriver)
+				webDriver.DeleteAllCookies()
+				webDriver.Close()
+				webDriver = CreateWebDriver()
+				// endregion
+			}
 		}
 
 		// endregion

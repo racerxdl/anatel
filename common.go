@@ -21,6 +21,9 @@ var States = []string {
 	"RR", "RS", "SC", "SE", "SP", "TO",
 }
 
+const callSignUpdateTimeout = time.Hour * 24 * 7 // 1 week
+const segmentLength = 100
+
 const (
 	anatelSCRAURL = "https://sistemas.anatel.gov.br/SCRA/"
 	anatelSCRAIndicativo = "https://sistemas.anatel.gov.br/SCRA/ConsultaIndicativoVagoOcupado/tela.asp?SISQSmodulo=18082"

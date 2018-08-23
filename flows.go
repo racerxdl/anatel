@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-func UpdateStationsFlow(username, password, uf string, db *gorm.DB, driver selenium.WebDriver) {
+func UpdateCallSigns(username, password, uf, class string, db *gorm.DB, driver selenium.WebDriver) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("Panic Recovered", r)
@@ -17,22 +17,27 @@ func UpdateStationsFlow(username, password, uf string, db *gorm.DB, driver selen
 	}()
 	driver.DeleteAllCookies()
 	log.Println("Fetching callsigns")
-	callsignsRaw := consultaIndicativos(username, password, uf, ClassC, driver)
+	callsignsRaw := consultaIndicativos(username, password, uf, class, driver)
 
 	log.Println("Santizing Callsigns")
 	callSigns := models.MapCallsignRawData(callsignsRaw)
 
-	nc := make(chan []int)
+	log.Println("Writting Callsigns")
+	WriteCallSigns(callSigns, db)
+}
 
-	go func() {
-		log.Println("Writting Callsigns")
-		newCallsigns := WriteCallSigns(callSigns, db)
-		nc <- newCallsigns
-	}()
+func updateStationsSegment(length int, state string, firstTime time.Time, db *gorm.DB, driver selenium.WebDriver) {
+	var cls []models.CallSign
+	// No need for start since we wait for saving callsigns
+	db.Model(&models.CallSign{}).Where("last_updated <= ? and region = ? ", firstTime, state).Limit(length).Find(&cls)
+
+	if len(cls) <= 0 {
+		return
+	}
 
 	log.Println("Fetching Extended Data")
 
-	extDataRaw := consultaIndicativoArray(models.CallSignArrayToString(callSigns), driver)
+	extDataRaw := consultaIndicativoArray(models.CallSignArrayToString(cls), driver)
 	extData := models.MapStationRawData(extDataRaw)
 
 	ns := make(chan []int)
@@ -40,17 +45,57 @@ func UpdateStationsFlow(username, password, uf string, db *gorm.DB, driver selen
 	go func() {
 		log.Println("Writting Station Data")
 		newStations := WriteStationData(extData, db)
+
+		log.Println("Updating Callsigns")
+		for i := 0; i < len(cls); i++ {
+			db.Model(&cls[i]).Update("last_updated", time.Now())
+		}
 		ns <- newStations
 	}()
 
 	log.Println("Waiting for Station / Callsign data to be written")
 
-	newCallsigns := <- nc
 	newStations := <- ns
 
 	log.Println("Triggering Notifications")
 
-	triggerStationCallSignsNotifications(newCallsigns, newStations, callSigns, extData, db)
+	triggerStationNotifications(newStations, extData, db)
+}
+
+func UpdateStationsFlow(state string, db *gorm.DB, driver selenium.WebDriver) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Panic Recovered", r)
+		}
+	}()
+	driver.DeleteAllCookies()
+	log.Printf("Fetching callsigns for region %s\n", state)
+
+	var firstTime = time.Now().Add(-callSignUpdateTimeout)
+
+	// Grab Count
+	var numCallSign int
+	var totalCallsigns int
+	db.Model(&models.CallSign{}).Where("last_updated <= ? and region = ?", firstTime, state).Count(&numCallSign)
+	totalCallsigns = numCallSign
+	var numSegments = numCallSign / segmentLength
+
+	if numSegments == 0 {
+		numSegments = 1
+	}
+
+	var pos = 0
+
+	for i := 0; i < numSegments; i++ {
+		var chunkSize = segmentLength
+		if chunkSize > numCallSign {
+			chunkSize = numCallSign
+		}
+
+		log.Printf("Fetching callsigns from %d to %d from %d records\n", pos, pos + chunkSize, totalCallsigns)
+		updateStationsSegment(chunkSize, state, firstTime, db, driver)
+		numCallSign -= chunkSize
+	}
 }
 
 const testCheckMonths = 6
@@ -58,7 +103,7 @@ const testCheckMonths = 6
 func GetNextTests(username, password, uf string, db *gorm.DB, driver selenium.WebDriver) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Recovered in f", r)
+			fmt.Println("Error:", r)
 		}
 	}()
 

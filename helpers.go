@@ -82,6 +82,19 @@ func triggerStationCallSignsNotifications(newCallsigns, newStations []int, calls
 	}
 }
 
+func triggerStationNotifications(newStations []int, stations []models.StationData, db *gorm.DB) {
+	// Report new stations for existing callsigns
+	for i := 0; i < len(newStations); i++ {
+	ssid := newStations[i]
+	s := stations[ssid]
+
+		// Not reported in new callsign
+		eventManager.Emit(eventmanager.EvOnNewStation, eventmanager.NewStationEventData{
+			StationData: s,
+		})
+	}
+}
+
 func triggerTestsNotifications(newTests []int, tests []models.TestData) {
 	for i := 0; i < len(newTests); i++ {
 		tdid := newTests[i]

@@ -39,7 +39,7 @@ func WriteCallSigns(data []models.CallSign, db *gorm.DB) []int {
 		db.Model(&models.CallSign{}).Where("callsign = ?", mcl.Callsign).Count(&count)
 
 		if count == 0 {
-			log.Printf("Adding %s to the database.\n", mcl.Callsign)
+			//log.Printf("Adding %s to the database.\n", mcl.Callsign)
 			db.NewRecord(mcl)
 			db.Create(&mcl)
 			addedCallsigns = append(addedCallsigns, i)
@@ -47,6 +47,7 @@ func WriteCallSigns(data []models.CallSign, db *gorm.DB) []int {
 
 	}
 
+	log.Printf("Added %d new callsigns to database.\n", len(addedCallsigns))
 	return addedCallsigns
 }
 
