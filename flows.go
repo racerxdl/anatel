@@ -98,6 +98,26 @@ func UpdateStationsFlow(state string, db *gorm.DB, driver selenium.WebDriver) {
 	}
 }
 
+func UpdateRepeaterStationsFlow(username, password, state string, db *gorm.DB, driver selenium.WebDriver) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Panic Recovered", r)
+		}
+	}()
+	driver.DeleteAllCookies()
+	log.Printf("Fetching repeater stations for region %s\n", state)
+
+	z := consultaRepetidoras(username, password, state, driver)
+
+	log.Printf("%d stations found.\n", len(z))
+
+	o := models.MapRepeaterStationRawData(z)
+
+	WriteRepeaterData(o, db)
+
+	log.Println("Finish updating repeater stations")
+}
+
 const testCheckMonths = 6
 
 func GetNextTests(username, password, uf string, db *gorm.DB, driver selenium.WebDriver) {

@@ -13,6 +13,7 @@ type CallSign struct {
 	Class string
 	Region string
 	Stations []StationData `gorm:"foreignkey:Callsign;association_foreignkey:Callsign"`
+	Repeaters []RepeaterStationData `gorm:"foreignkey:Callsign;association_foreignkey:Callsign"`
 }
 
 func CallSignArrayToString(data []CallSign) []string {

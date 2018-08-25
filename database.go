@@ -26,6 +26,7 @@ func Initialize() *gorm.DB {
 	db.AutoMigrate(&models.CertificateData{})
 	db.AutoMigrate(&models.StationData{})
 	db.AutoMigrate(&models.TestData{})
+	db.AutoMigrate(&models.RepeaterStationData{})
 
 	return db
 }
@@ -70,6 +71,25 @@ func WriteStationData(data []models.StationData, db *gorm.DB) []int {
 	return addedStations
 }
 
+
+func WriteRepeaterData(data []models.RepeaterStationData, db *gorm.DB) []int {
+	addedStations := make([]int, 0)
+	for i := 0; i < len(data); i++ {
+		var mcl = data[i]
+		var count int
+		db.Model(&models.RepeaterStationData{}).Where("UID = ?", mcl.UID).Count(&count)
+
+		if count == 0 {
+			log.Printf("Adding Repeater %s (%d) to the database.\n", mcl.Callsign, i)
+			db.NewRecord(mcl)
+			db.Create(&mcl)
+			addedStations = append(addedStations, i)
+		}
+
+	}
+
+	return addedStations
+}
 
 func WriteTests(data []models.TestData, db *gorm.DB) []int {
 	addedTests := make([]int, 0)

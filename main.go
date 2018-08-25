@@ -177,6 +177,20 @@ func main() {
 		// endregion
 	}
 
+	if mode == "repeater" || mode == "all" {
+		// region Update Repeaters
+		log.Println("Checking repeaters")
+		for i := 0; i < len(checkstates); i++ {
+			state := checkstates[i]
+			log.Println("Checking repeaters for", state)
+			UpdateRepeaterStationsFlow(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, db, webDriver)
+			webDriver.DeleteAllCookies()
+			webDriver.Close()
+			webDriver = CreateWebDriver()
+		}
+		// endregion
+	}
+
 	log.Println("Finished all tasks. Waiting for notifications")
 	time.Sleep(time.Second * 60)
 	log.Println("Closing")

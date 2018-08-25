@@ -27,6 +27,7 @@ const segmentLength = 100
 const (
 	anatelSCRAURL = "https://sistemas.anatel.gov.br/SCRA/"
 	anatelSCRAIndicativo = "https://sistemas.anatel.gov.br/SCRA/ConsultaIndicativoVagoOcupado/tela.asp?SISQSmodulo=18082"
+	anatelSCRARepetidora = "https://sistemas.anatel.gov.br/SCRA/Relatorio/Repetidora.asp?SISQSmodulo=16442"
 	anatelConsultaCertificadoURL = "https://sistemas.anatel.gov.br/easp/Novo/ConsultaCertificado/Tela.asp?SISQSmodulo=19176"
 	anatelConsultaIndicativo = "https://sistemas.anatel.gov.br/easp/Novo/ConsultaIndicativo/Tela.asp?SISQSmodulo=11265"
 	anatelSEC = "https://sistemas.anatel.gov.br/SEC/"

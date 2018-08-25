@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+	"strings"
+	"strconv"
+)
 
 const (
 	ownerTag = "Autorizado(a)"
@@ -30,6 +34,11 @@ const (
 	classTag = "Categoria/Classe"
 	statusTag = "Situação"
 	nameTag = "Nome"
+	rxFrequencyTag = "Freq. RX"
+	txFrequencyTag = "Freq. TX"
+	stationRegionTag = "UF Estação"
+	stationTypeTag2 = "Tipo de Est."
+	stationCityTag = "Município Estação"
 )
 
 const (
@@ -166,4 +175,64 @@ func Raw2CertificateData(raw map[string]string) CertificateData {
 		Name: raw[nameTag],
 		Status: raw[statusTag],
 	}
+}
+
+func Raw2RepeaterStationData(raw map[string]string) RepeaterStationData {
+
+	rxFreqStr := raw[rxFrequencyTag]
+	txFreqStr := raw[txFrequencyTag]
+	csStr := raw[callsignTag]
+
+	rxFreqStr = strings.Replace(rxFreqStr, ",", ".", -1)
+	txFreqStr = strings.Replace(txFreqStr, ",", ".", -1)
+
+	rxFreq, _ := strconv.ParseFloat(rxFreqStr, 64)
+	txFreq, _ := strconv.ParseFloat(txFreqStr, 64)
+
+	if !strings.Contains(rxFreqStr, ".") {
+		rxFreq *= 1e3
+	} else {
+		rxFreq *= 1e6
+	}
+
+	if !strings.Contains(txFreqStr, ".") {
+		txFreq *= 1e3
+	} else {
+		txFreq *= 1e6
+	}
+
+	csStr_t := strings.Split(csStr, "-")
+
+	callsign := csStr
+	stationNumber := "0"
+
+	if len(csStr_t) == 2 {
+		callsign = csStr_t[0]
+		stationNumber = csStr_t[1]
+	}
+
+	rept := RepeaterStationData{
+		RXFrequency: uint64(rxFreq),
+		TXFrequency: uint64(txFreq),
+		Callsign: callsign,
+		StationNumber: stationNumber,
+		City: raw[stationCityTag],
+		Region: raw[stationRegionTag],
+		StationType: raw[stationTypeTag2],
+		FirstSaw: time.Now(),
+	}
+
+	rept.GenerateUID()
+
+	return rept
+}
+
+func MapRepeaterStationRawData(raw []map[string]string) []RepeaterStationData {
+	var cls = make([]RepeaterStationData, 0)
+
+	for i := 0; i < len(raw); i++ {
+		cls = append(cls, Raw2RepeaterStationData(raw[i]))
+	}
+
+	return cls
 }
