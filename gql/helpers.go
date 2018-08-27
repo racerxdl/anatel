@@ -79,7 +79,7 @@ var pageInfoModel = graphql.NewObject(graphql.ObjectConfig{
 
 func makeGraphQLEdge(nodeType *graphql.Object) *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{
-		Name: "GraphQLConnectionEdges",
+		Name: fmt.Sprintf("%sConnectionEdges", nodeType.Name()),
 		Description: "Edges for GraphQL Pagination",
 		Fields: graphql.Fields{
 			"Node": {

@@ -15,7 +15,7 @@ func graphqlServer() {
 	var rootQuery = graphql.ObjectConfig{Name: "RootQuery", Fields: graphql.Fields{
 		"Callsign": &graphql.Field{
 			Type: gql.MakeGraphQLConnection(models.GQLCallSign),
-			Description: "Call Sign Query",
+			Description: "Callsign Query",
 			Args: gql.MakeConnectionArgs(graphql.FieldConfigArgument{
 				"Callsign": {
 					Type: graphql.String,
@@ -28,6 +28,23 @@ func graphqlServer() {
 			}),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				return SearchCallsigns(p.Args, database), nil
+			},
+		},
+		"Repeater": &graphql.Field{
+			Type: gql.MakeGraphQLConnection(models.GQLRepeaterStation),
+			Description: "Repeaters Query",
+			Args: gql.MakeConnectionArgs(graphql.FieldConfigArgument{
+				"Callsign": {
+					Type: graphql.String,
+					Description: "Callsign to search (can be partial, empty to return all)",
+				},
+				"Region": {
+					Type: graphql.String,
+					Description: "Region to search (a.k.a. UF)",
+				},
+			}),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return SearchRepeater(p.Args, database), nil
 			},
 		},
 	}}
