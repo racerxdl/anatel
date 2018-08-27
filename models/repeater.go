@@ -6,6 +6,7 @@ import (
 	"strings"
 	"encoding/hex"
 	"golang.org/x/crypto/sha3"
+	"github.com/quan-to/graphql"
 )
 
 type RepeaterStationData struct {
@@ -33,3 +34,23 @@ func (cs *RepeaterStationData) GenerateUID() {
 
 	cs.UID = strings.ToUpper(hex.EncodeToString(result))
 }
+
+var GQLRepeaterStation = graphql.NewObject(graphql.ObjectConfig{
+	Name: "RepeaterStationData",
+	Fields: graphql.Fields{
+		"UID": &graphql.Field{ Type: graphql.String },
+		"RXFrequency": &graphql.Field{ Type: graphql.Float },
+		"TXFrequency": &graphql.Field{ Type: graphql.Float },
+		"Callsign": &graphql.Field{ Type: graphql.String },
+		"StationNumber": &graphql.Field{ Type: graphql.String },
+		"Region": &graphql.Field{ Type: graphql.String },
+		"City": &graphql.Field{ Type: graphql.String },
+		"StationType": &graphql.Field{ Type: graphql.String },
+		"FirstSaw": &graphql.Field{
+			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return p.Source.(RepeaterStationData).FirstSaw.String(), nil
+			},
+		},
+	},
+})

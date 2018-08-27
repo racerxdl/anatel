@@ -7,6 +7,9 @@ import (
 	"os"
 	"github.com/racerxdl/anatel/models"
 	"log"
+	"strconv"
+	"encoding/base64"
+	"github.com/racerxdl/anatel/gql"
 )
 
 func Initialize() *gorm.DB {
@@ -109,3 +112,121 @@ func WriteTests(data []models.TestData, db *gorm.DB) []int {
 
 	return addedTests
 }
+
+func FromGormToCursor(id uint) string {
+	var sid = strconv.FormatInt(int64(id), 10)
+	return base64.StdEncoding.EncodeToString([]byte(sid))
+}
+
+func FromCursorToGorm(cursor string) int64 {
+	var sid, err = base64.StdEncoding.DecodeString(cursor)
+	if err != nil {
+		panic(err)
+	}
+
+	id, err := strconv.ParseInt(string(sid), 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return id
+}
+
+func SearchCallsigns(args map[string]interface{}, db *gorm.DB) (output *gql.ConnectionData) {
+	var uf, callsign string
+	first := 10
+	last := -1
+	after := int64(-1)
+	before := int64(-1)
+
+	if val, ok := args["Region"] ; ok {
+		uf = val.(string)
+	}
+
+	if val, ok := args["Callsign"] ; ok {
+		callsign = val.(string)
+	}
+
+	if val, ok := args["After"] ; ok {
+		after = FromCursorToGorm(val.(string))
+	}
+
+	if val, ok := args["Before"] ; ok {
+		before = FromCursorToGorm(val.(string))
+	}
+
+	if val, ok := args["First"] ; ok {
+		first = val.(int)
+	}
+
+	if val, ok := args["Last"] ; ok {
+		last = val.(int)
+	}
+
+	if last != -1 {
+		panic("Last not implemented")
+	}
+
+	if first > 20 {
+		first = 20
+	}
+
+	s := db.Model(&models.CallSign{})
+
+	if uf != "" {
+		s = s.Where("region = ?", uf)
+	}
+
+	if callsign != "" {
+		s = s.Where("callsign LIKE ?", fmt.Sprintf("%%%s%%", callsign))
+	}
+
+	var totalCount int64
+	s.Count(&totalCount)
+
+	if after != -1 {
+		s = s.Where("id >= ?", after)
+	}
+
+	if before != -1 {
+		s = s.Where("id <= ?", before)
+	}
+
+	s = s.Limit(first)
+
+	s = s.Preload("Stations").Preload("Repeaters")
+
+	var nodes []models.CallSign
+	var startCursor, endCursor string
+
+	s.Find(&nodes)
+
+	if len(nodes) > 0 {
+		v := nodes[0]
+		startCursor = FromGormToCursor(v.ID)
+		v = nodes[len(nodes)-1]
+		endCursor = FromGormToCursor(v.ID)
+	}
+
+	gNodes := make([]interface{}, len(nodes))
+	for i, v := range nodes {
+		gNodes[i] = v
+	}
+
+	var edges = gql.MakeEdges(gNodes, func(m interface{}) string {
+		var z = m.(models.CallSign)
+		return FromGormToCursor(z.ID)
+	})
+
+	output = &gql.ConnectionData{
+		TotalCount: totalCount,
+		PageInfo: gql.PageInfo{
+			StartCursor: startCursor,
+			EndCursor: endCursor,
+		},
+		Edges: edges,
+	}
+
+	return output
+}
+

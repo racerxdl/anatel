@@ -77,6 +77,14 @@ func CreateWebDriver() selenium.WebDriver {
 }
 
 func main() {
+	mode := os.Getenv("MODE")
+	database = Initialize()
+	defer database.Close()
+
+	if mode == "graphql" {
+		graphqlServer()
+		return
+	}
 
 	eventManager.AddHandler(eventmanager.EvOnNewCallsign, newCallsign)
 	eventManager.AddHandler(eventmanager.EvOnNewStation, newStation)
@@ -97,9 +105,6 @@ func main() {
 		log.Println("Ending Handler loop")
 	}()
 
-	db := Initialize()
-
-	defer db.Close()
 
 	webDriver := CreateWebDriver()
 
@@ -116,7 +121,6 @@ func main() {
 	webDriver.ResizeWindow(window, 1280, 1024)
 
 	state := os.Getenv("STATE")
-	mode := os.Getenv("MODE")
 
 	checkstateRaw := strings.Split(state, ",")
 	checkstates := make([]string, 0)
@@ -144,7 +148,7 @@ func main() {
 		for i := 0; i < len(checkstates); i++ {
 			state := checkstates[i]
 			log.Println("Checking tests for", state)
-			GetNextTests(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, db, webDriver)
+			GetNextTests(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, database, webDriver)
 			webDriver.DeleteAllCookies() // Force login again
 		}
 	}
@@ -162,11 +166,11 @@ func main() {
 				class := classes[z]
 				log.Println("Checking callsigns for", state, class)
 				// region Class C
-				UpdateCallSigns(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, class, db, webDriver)
+				UpdateCallSigns(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, class, database, webDriver)
 				webDriver.DeleteAllCookies()
 				webDriver.Close()
 				webDriver = CreateWebDriver()
-				UpdateStationsFlow(state, db, webDriver)
+				UpdateStationsFlow(state, database, webDriver)
 				webDriver.DeleteAllCookies()
 				webDriver.Close()
 				webDriver = CreateWebDriver()
@@ -183,7 +187,7 @@ func main() {
 		for i := 0; i < len(checkstates); i++ {
 			state := checkstates[i]
 			log.Println("Checking repeaters for", state)
-			UpdateRepeaterStationsFlow(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, db, webDriver)
+			UpdateRepeaterStationsFlow(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, database, webDriver)
 			webDriver.DeleteAllCookies()
 			webDriver.Close()
 			webDriver = CreateWebDriver()

@@ -6,6 +6,7 @@ import (
 	"time"
 	"github.com/racerxdl/anatel/eventmanager"
 	"github.com/racerxdl/anatel/telegram"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -56,3 +57,4 @@ func Map2Str(vs []map[string]string, f func(map[string]string) string) []string 
 
 var eventManager = eventmanager.New()
 var telBot = telegram.New()
+var database *gorm.DB

@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/jinzhu/gorm"
 	"time"
+	"github.com/quan-to/graphql"
 )
 
 type CallSign struct {
@@ -23,3 +24,26 @@ func CallSignArrayToString(data []CallSign) []string {
 	}
 	return arr
 }
+
+var GQLCallSign = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Callsign",
+	Fields: graphql.Fields{
+		"Callsign": &graphql.Field{ Type: graphql.String },
+		"FirstSaw": &graphql.Field{
+			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return p.Source.(CallSign).FirstSaw.String(), nil
+			},
+		},
+		"LastUpdated": &graphql.Field{
+			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return p.Source.(CallSign).LastUpdated.String(), nil
+			},
+		},
+		"Class": &graphql.Field{ Type: graphql.String },
+		"Region": &graphql.Field{ Type: graphql.String },
+		"Stations": &graphql.Field{ Type: graphql.NewList(GQLStation) },
+		"Repeaters": &graphql.Field{ Type: graphql.NewList(GQLRepeaterStation) },
+	},
+})
