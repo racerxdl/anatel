@@ -1,17 +1,15 @@
 package main
 
 import (
-	"log"
-	"github.com/tebeka/selenium"
-	"github.com/tebeka/selenium/chrome"
-	"time"
-	"github.com/racerxdl/anatel/eventmanager"
 	"fmt"
+	"github.com/racerxdl/anatel/eventmanager"
+	"github.com/tebeka/selenium"
+	"log"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
 )
-
 
 var newCallsign = make(chan interface{})
 var newStation = make(chan interface{})
@@ -61,12 +59,10 @@ func CreateWebDriver() selenium.WebDriver {
 
 	var err error
 	caps := selenium.Capabilities(map[string]interface{}{
-		"browserName": "chrome",
-		"enableVideo": enableVideo,
+		"browserName":      "chrome",
+		"enableVideo":      enableVideo,
 		"screenResolution": "1280x1024x24",
 	})
-
-	caps.AddChrome(chrome.Capabilities{})
 
 	log.Println("Initializing Remote")
 	if webDriver, err = selenium.NewRemote(caps, hubUrl); err != nil {
@@ -86,13 +82,15 @@ func main() {
 		return
 	}
 
+	running := true
+
 	eventManager.AddHandler(eventmanager.EvOnNewCallsign, newCallsign)
 	eventManager.AddHandler(eventmanager.EvOnNewStation, newStation)
 	eventManager.AddHandler(eventmanager.EvOnNewTestDate, newTests)
 
 	go func() {
 		log.Println("Starting Handler loop")
-		for {
+		for running {
 			select {
 			case msg := <-newCallsign:
 				OnNewCallsign(msg.(eventmanager.NewCallsignEventData))
@@ -105,20 +103,19 @@ func main() {
 		log.Println("Ending Handler loop")
 	}()
 
-
 	webDriver := CreateWebDriver()
 
 	defer func() {
 		if webDriver != nil {
-			webDriver.Quit()
+			_ = webDriver.Quit()
 		}
 	}()
 
 	window, _ := webDriver.CurrentWindowHandle()
 
 	log.Println("Resizing Window")
-	webDriver.SetImplicitWaitTimeout(5 * time.Second)
-	webDriver.ResizeWindow(window, 1280, 1024)
+	_ = webDriver.SetImplicitWaitTimeout(5 * time.Second)
+	_ = webDriver.ResizeWindow(window, 1280, 1024)
 
 	state := os.Getenv("STATE")
 
@@ -149,13 +146,13 @@ func main() {
 			state := checkstates[i]
 			log.Println("Checking tests for", state)
 			GetNextTests(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, database, webDriver)
-			webDriver.DeleteAllCookies() // Force login again
+			_ = webDriver.DeleteAllCookies() // Force login again
 		}
 	}
 
 	// endregion
 
-	var classes = []string {ClassC, ClassB, ClassA}
+	var classes = []string{ClassC, ClassB, ClassA}
 
 	if mode == "callsign" || mode == "all" {
 		// region Update Callsigns
@@ -167,12 +164,12 @@ func main() {
 				log.Println("Checking callsigns for", state, class)
 				// region Class C
 				UpdateCallSigns(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, class, database, webDriver)
-				webDriver.DeleteAllCookies()
-				webDriver.Close()
+				_ = webDriver.DeleteAllCookies()
+				_ = webDriver.Close()
 				webDriver = CreateWebDriver()
 				UpdateStationsFlow(state, database, webDriver)
-				webDriver.DeleteAllCookies()
-				webDriver.Close()
+				_ = webDriver.DeleteAllCookies()
+				_ = webDriver.Close()
 				webDriver = CreateWebDriver()
 				// endregion
 			}
@@ -188,8 +185,8 @@ func main() {
 			state := checkstates[i]
 			log.Println("Checking repeaters for", state)
 			UpdateRepeaterStationsFlow(os.Getenv("ANATEL_USERNAME"), os.Getenv("ANATEL_PASSWORD"), state, database, webDriver)
-			webDriver.DeleteAllCookies()
-			webDriver.Close()
+			_ = webDriver.DeleteAllCookies()
+			_ = webDriver.Close()
 			webDriver = CreateWebDriver()
 		}
 		// endregion
@@ -198,4 +195,6 @@ func main() {
 	log.Println("Finished all tasks. Waiting for notifications")
 	time.Sleep(time.Second * 60)
 	log.Println("Closing")
+	running = false
+	os.Exit(0)
 }

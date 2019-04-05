@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
-	"time"
 	"github.com/anaskhan96/soup"
+	"github.com/tebeka/selenium"
 	"log"
+	"time"
 )
 
 func consultaIndicativoArray(indicativos []string, driver selenium.WebDriver) (result []map[string]string) {
@@ -20,7 +20,7 @@ func consultaIndicativoArray(indicativos []string, driver selenium.WebDriver) (r
 	for i := 0; i < len(indicativos); i++ {
 		log.Println("Fetching data for", indicativos[i])
 		result = append(result, consultaIndicativo(indicativos[i], driver)...)
-		if i % 64 == 63 {
+		if i%64 == 63 {
 			log.Println("Waiting 5 seconds before next batch")
 			time.Sleep(time.Second * 5)
 		}
@@ -48,7 +48,7 @@ func consultaIndicativo(indicativo string, webDriver selenium.WebDriver) []map[s
 
 	elem.Click()
 
-	SeleniumWait(webDriver, 100 * time.Millisecond)
+	SeleniumWait(webDriver, 100*time.Millisecond)
 
 	content, err := webDriver.PageSource()
 
@@ -110,7 +110,6 @@ func consultaIndicativo(indicativo string, webDriver selenium.WebDriver) []map[s
 			certs = append(certs, d)
 		}
 	}
-
 
 	return certs
 }

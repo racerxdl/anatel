@@ -5,7 +5,7 @@ import "github.com/racerxdl/anatel/models"
 const EvOnNewCallsign = "newCallsignEvent"
 
 type NewCallsignEventData struct {
-	Owner string
+	Owner    string
 	CallSign models.CallSign
 	Stations []models.StationData
 }

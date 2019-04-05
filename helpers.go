@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/racerxdl/anatel/models"
+	"github.com/anaskhan96/soup"
 	"github.com/jinzhu/gorm"
 	"github.com/racerxdl/anatel/eventmanager"
-	"github.com/anaskhan96/soup"
+	"github.com/racerxdl/anatel/models"
 )
 
 func IndexOfString(item string, arr []string) int {
@@ -64,7 +64,7 @@ func triggerStationCallSignsNotifications(newCallsigns, newStations []int, calls
 		eventManager.Emit(eventmanager.EvOnNewCallsign, eventmanager.NewCallsignEventData{
 			CallSign: cls,
 			Stations: stations,
-			Owner: name,
+			Owner:    name,
 		})
 	}
 
@@ -85,8 +85,8 @@ func triggerStationCallSignsNotifications(newCallsigns, newStations []int, calls
 func triggerStationNotifications(newStations []int, stations []models.StationData, db *gorm.DB) {
 	// Report new stations for existing callsigns
 	for i := 0; i < len(newStations); i++ {
-	ssid := newStations[i]
-	s := stations[ssid]
+		ssid := newStations[i]
+		s := stations[ssid]
 
 		// Not reported in new callsign
 		eventManager.Emit(eventmanager.EvOnNewStation, eventmanager.NewStationEventData{

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/tebeka/selenium"
 	"log"
-	"encoding/json"
 )
 
 func RetrieveCallSign(username, password, uf string, driver selenium.WebDriver) {

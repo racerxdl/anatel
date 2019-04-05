@@ -2,14 +2,14 @@ package main
 
 import "github.com/jinzhu/gorm"
 import (
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"encoding/base64"
 	"fmt"
-	"os"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/racerxdl/anatel/gql"
 	"github.com/racerxdl/anatel/models"
 	"log"
+	"os"
 	"strconv"
-	"encoding/base64"
-	"github.com/racerxdl/anatel/gql"
 )
 
 func Initialize() *gorm.DB {
@@ -33,7 +33,6 @@ func Initialize() *gorm.DB {
 
 	return db
 }
-
 
 func WriteCallSigns(data []models.CallSign, db *gorm.DB) []int {
 	addedCallsigns := make([]int, 0)
@@ -73,7 +72,6 @@ func WriteStationData(data []models.StationData, db *gorm.DB) []int {
 
 	return addedStations
 }
-
 
 func WriteRepeaterData(data []models.RepeaterStationData, db *gorm.DB) []int {
 	addedStations := make([]int, 0)
@@ -139,27 +137,27 @@ func SearchCallsigns(args map[string]interface{}, db *gorm.DB) (output *gql.Conn
 	after := int64(-1)
 	before := int64(-1)
 
-	if val, ok := args["Region"] ; ok {
+	if val, ok := args["Region"]; ok {
 		uf = val.(string)
 	}
 
-	if val, ok := args["Callsign"] ; ok {
+	if val, ok := args["Callsign"]; ok {
 		callsign = val.(string)
 	}
 
-	if val, ok := args["After"] ; ok {
+	if val, ok := args["After"]; ok {
 		after = FromCursorToGorm(val.(string))
 	}
 
-	if val, ok := args["Before"] ; ok {
+	if val, ok := args["Before"]; ok {
 		before = FromCursorToGorm(val.(string))
 	}
 
-	if val, ok := args["First"] ; ok {
+	if val, ok := args["First"]; ok {
 		first = val.(int)
 	}
 
-	if val, ok := args["Last"] ; ok {
+	if val, ok := args["Last"]; ok {
 		last = val.(int)
 	}
 
@@ -222,7 +220,7 @@ func SearchCallsigns(args map[string]interface{}, db *gorm.DB) (output *gql.Conn
 		TotalCount: totalCount,
 		PageInfo: gql.PageInfo{
 			StartCursor: startCursor,
-			EndCursor: endCursor,
+			EndCursor:   endCursor,
 		},
 		Edges: edges,
 	}
@@ -237,27 +235,27 @@ func SearchRepeater(args map[string]interface{}, db *gorm.DB) (output *gql.Conne
 	after := int64(-1)
 	before := int64(-1)
 
-	if val, ok := args["Region"] ; ok {
+	if val, ok := args["Region"]; ok {
 		uf = val.(string)
 	}
 
-	if val, ok := args["Callsign"] ; ok {
+	if val, ok := args["Callsign"]; ok {
 		callsign = val.(string)
 	}
 
-	if val, ok := args["After"] ; ok {
+	if val, ok := args["After"]; ok {
 		after = FromCursorToGorm(val.(string))
 	}
 
-	if val, ok := args["Before"] ; ok {
+	if val, ok := args["Before"]; ok {
 		before = FromCursorToGorm(val.(string))
 	}
 
-	if val, ok := args["First"] ; ok {
+	if val, ok := args["First"]; ok {
 		first = val.(int)
 	}
 
-	if val, ok := args["Last"] ; ok {
+	if val, ok := args["Last"]; ok {
 		last = val.(int)
 	}
 
@@ -318,11 +316,10 @@ func SearchRepeater(args map[string]interface{}, db *gorm.DB) (output *gql.Conne
 		TotalCount: totalCount,
 		PageInfo: gql.PageInfo{
 			StartCursor: startCursor,
-			EndCursor: endCursor,
+			EndCursor:   endCursor,
 		},
 		Edges: edges,
 	}
 
 	return output
 }
-

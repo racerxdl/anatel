@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
-	"time"
 	"github.com/anaskhan96/soup"
+	"github.com/tebeka/selenium"
 	"strconv"
+	"time"
 )
 
 func consultaAgenda(username, password, uf string, startTime time.Time, skipLogin bool, webDriver selenium.WebDriver) []map[string]string {
@@ -42,7 +42,7 @@ func consultaAgenda(username, password, uf string, startTime time.Time, skipLogi
 
 	webDriver.Get(anatelConsultaAgenda)
 
-	SeleniumWait(webDriver, 2000 * time.Millisecond)
+	SeleniumWait(webDriver, 2000*time.Millisecond)
 
 	endTime := startTime.Add(time.Hour * 24 * 30)
 
@@ -77,7 +77,7 @@ func consultaAgenda(username, password, uf string, startTime time.Time, skipLogi
 
 	elem.Click()
 
-	SeleniumWait(webDriver, 100 * time.Millisecond)
+	SeleniumWait(webDriver, 100*time.Millisecond)
 
 	content, err := webDriver.PageSource()
 

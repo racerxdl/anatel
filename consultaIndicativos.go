@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
-	"log"
-	"time"
-	"regexp"
-	"strconv"
-	"math"
 	"fmt"
 	"github.com/anaskhan96/soup"
+	"github.com/tebeka/selenium"
+	"log"
+	"math"
+	"regexp"
+	"strconv"
+	"time"
 )
 
 func consultaIndicativos(username, password, uf, class string, webDriver selenium.WebDriver) []map[string]string {
@@ -39,7 +39,7 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 
 	elem.Click()
 
-	SeleniumWait(webDriver, 2000 * time.Millisecond)
+	SeleniumWait(webDriver, 2000*time.Millisecond)
 
 	//log.Println("Acessing Indicativos")
 	err = webDriver.Get(anatelSCRAIndicativo)
@@ -76,14 +76,12 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 
 	elem.Click()
 
-
 	elem, err = webDriver.FindElement(selenium.ByID, "botaoFlatConfirmar")
 	if err != nil {
 		panic(err)
 	}
 
 	elem.Click()
-
 
 	elems, err := webDriver.FindElements(selenium.ByClassName, "SubTituloEsquerda")
 	if err != nil {
@@ -136,21 +134,21 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 
 	elem.SendKeys(fmt.Sprintf("%d", higherNumber))
 
-	_ , err = webDriver.ExecuteScript("AlteraNumReg();", nil)
+	_, err = webDriver.ExecuteScript("AlteraNumReg();", nil)
 
 	if err != nil {
 		panic(err)
 	}
 
-	SeleniumWait(webDriver, 100 * time.Millisecond)
+	SeleniumWait(webDriver, 100*time.Millisecond)
 
-	_ , err = webDriver.ExecuteScript("AlteraNumReg();", nil)
+	_, err = webDriver.ExecuteScript("AlteraNumReg();", nil)
 
 	if err != nil {
 		panic(err)
 	}
 
-	SeleniumWait(webDriver, 100 * time.Millisecond)
+	SeleniumWait(webDriver, 100*time.Millisecond)
 
 	content, err := webDriver.PageSource()
 
@@ -181,8 +179,8 @@ func consultaIndicativos(username, password, uf, class string, webDriver seleniu
 			s := td.Text()
 
 			certs = append(certs, map[string]string{
-				"Indicativo": CleanString(s),
-				"UF": uf,
+				"Indicativo":       CleanString(s),
+				"UF":               uf,
 				"Categoria/Classe": class,
 			})
 		}

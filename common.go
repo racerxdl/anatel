@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/jinzhu/gorm"
+	"github.com/racerxdl/anatel/eventmanager"
+	"github.com/racerxdl/anatel/telegram"
 	"github.com/tebeka/selenium"
 	"strings"
 	"time"
-	"github.com/racerxdl/anatel/eventmanager"
-	"github.com/racerxdl/anatel/telegram"
-	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 	ClassA = "Classe A"
 )
 
-var States = []string {
+var States = []string{
 	"AC", "AL", "AM", "AP", "BA", "CE", "DF",
 	"ES", "GO", "MA", "MG", "MS", "MT", "PA",
 	"PB", "PE", "PI", "PR", "RJ", "RN", "RO",
@@ -26,20 +26,20 @@ const callSignUpdateTimeout = time.Hour * 24 * 7 // 1 week
 const segmentLength = 100
 
 const (
-	anatelSCRAURL = "https://sistemas.anatel.gov.br/SCRA/"
-	anatelSCRAIndicativo = "https://sistemas.anatel.gov.br/SCRA/ConsultaIndicativoVagoOcupado/tela.asp?SISQSmodulo=18082"
-	anatelSCRARepetidora = "https://sistemas.anatel.gov.br/SCRA/Relatorio/Repetidora.asp?SISQSmodulo=16442"
+	anatelSCRAURL                = "https://sistemas.anatel.gov.br/SCRA/"
+	anatelSCRAIndicativo         = "https://sistemas.anatel.gov.br/SCRA/ConsultaIndicativoVagoOcupado/tela.asp?SISQSmodulo=18082"
+	anatelSCRARepetidora         = "https://sistemas.anatel.gov.br/SCRA/Relatorio/Repetidora.asp?SISQSmodulo=16442"
 	anatelConsultaCertificadoURL = "https://sistemas.anatel.gov.br/easp/Novo/ConsultaCertificado/Tela.asp?SISQSmodulo=19176"
-	anatelConsultaIndicativo = "https://sistemas.anatel.gov.br/easp/Novo/ConsultaIndicativo/Tela.asp?SISQSmodulo=11265"
-	anatelSEC = "https://sistemas.anatel.gov.br/SEC/"
-	anatelConsultaAgenda = "https://sistemas.anatel.gov.br/SEC/Agenda/Tela.asp?OP=c&SISQSmodulo=5819"
+	anatelConsultaIndicativo     = "https://sistemas.anatel.gov.br/easp/Novo/ConsultaIndicativo/Tela.asp?SISQSmodulo=11265"
+	anatelSEC                    = "https://sistemas.anatel.gov.br/SEC/"
+	anatelConsultaAgenda         = "https://sistemas.anatel.gov.br/SEC/Agenda/Tela.asp?OP=c&SISQSmodulo=5819"
 )
 
 func SeleniumWait(webDriver selenium.WebDriver, interval time.Duration) {
 	webDriver.WaitWithTimeout(Nothing, interval)
 }
 
-func Nothing (_ selenium.WebDriver) (bool, error) {
+func Nothing(_ selenium.WebDriver) (bool, error) {
 	return false, nil
 }
 

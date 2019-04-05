@@ -1,13 +1,13 @@
 package telegram
 
 import (
-	"os"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
 )
 
 type Bot struct {

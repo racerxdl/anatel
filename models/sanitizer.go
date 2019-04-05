@@ -1,44 +1,44 @@
 package models
 
 import (
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"time"
 )
 
 const (
-	ownerTag = "Autorizado(a)"
-	certificateTag = "Certificado"
-	certificatesTag = "Certificados"
-	testDataTag = "Data da prova"
-	inscriptionEndDateTag = "Encerramento das Inscrições"
-	activeInscriptionsTag = "Inscrições ativas"
+	ownerTag                = "Autorizado(a)"
+	certificateTag          = "Certificado"
+	certificatesTag         = "Certificados"
+	testDataTag             = "Data da prova"
+	inscriptionEndDateTag   = "Encerramento das Inscrições"
+	activeInscriptionsTag   = "Inscrições ativas"
 	canceledInscriptionsTag = "Inscrições canceladas"
-	startTimeTag = "Início"
-	addressTag = "Local"
-	morseTestTag = "Prova de Morse"
-	computerTestTag = "Prova no Computador"
-	accountableTag = "Responsável"
-	testStatusTag = "Situação da Agenda"
-	contactPhoneTag = "Telefone de Contato"
-	maxVacanciesTag = "Total de vagas"
-	availableVacancies = "Vagas disponíveis"
-	callsignTag = "Indicativo"
-	cityTag = "Município"
-	inclusionDateTag = "Data de Inclusão"
-	expirationDateTag = "Data de Validate"
-	serviceTag = "Serviço"
-	stationTypeTag = "Tipo Estação"
-	regionTag = "UF"
-	taxIdTag = "CPF"
-	classTag = "Categoria/Classe"
-	statusTag = "Situação"
-	nameTag = "Nome"
-	rxFrequencyTag = "Freq. RX"
-	txFrequencyTag = "Freq. TX"
-	stationRegionTag = "UF Estação"
-	stationTypeTag2 = "Tipo de Est."
-	stationCityTag = "Município Estação"
+	startTimeTag            = "Início"
+	addressTag              = "Local"
+	morseTestTag            = "Prova de Morse"
+	computerTestTag         = "Prova no Computador"
+	accountableTag          = "Responsável"
+	testStatusTag           = "Situação da Agenda"
+	contactPhoneTag         = "Telefone de Contato"
+	maxVacanciesTag         = "Total de vagas"
+	availableVacancies      = "Vagas disponíveis"
+	callsignTag             = "Indicativo"
+	cityTag                 = "Município"
+	inclusionDateTag        = "Data de Inclusão"
+	expirationDateTag       = "Data de Validate"
+	serviceTag              = "Serviço"
+	stationTypeTag          = "Tipo Estação"
+	regionTag               = "UF"
+	taxIdTag                = "CPF"
+	classTag                = "Categoria/Classe"
+	statusTag               = "Situação"
+	nameTag                 = "Nome"
+	rxFrequencyTag          = "Freq. RX"
+	txFrequencyTag          = "Freq. TX"
+	stationRegionTag        = "UF Estação"
+	stationTypeTag2         = "Tipo de Est."
+	stationCityTag          = "Município Estação"
 )
 
 const (
@@ -60,21 +60,21 @@ func Raw2TestData(raw map[string]string) TestData {
 	inscriptionEndDate, _ := time.Parse(dateFormat, raw[inscriptionEndDateTag])
 
 	td := TestData{
-		Certificates: raw[certificatesTag],
-		TestDate: testDate,
-		InscriptionEndDate: inscriptionEndDate,
-		ActiveInscriptions: raw[activeInscriptionsTag],
+		Certificates:         raw[certificatesTag],
+		TestDate:             testDate,
+		InscriptionEndDate:   inscriptionEndDate,
+		ActiveInscriptions:   raw[activeInscriptionsTag],
 		CanceledInscriptions: raw[canceledInscriptionsTag],
-		StartTime: raw[startTimeTag],
-		Address: raw[addressTag],
-		MorseTest: raw[morseTestTag] == "Sim",
-		ComputerTest: raw[computerTestTag] == "Sim",
-		Accountable: raw[accountableTag],
-		Status: raw[testStatusTag],
-		ContactPhone: raw[contactPhoneTag],
-		MaxVacancies: raw[maxVacanciesTag],
-		AvailableVacancies: raw[availableVacancies],
-		Region: raw[regionTag],
+		StartTime:            raw[startTimeTag],
+		Address:              raw[addressTag],
+		MorseTest:            raw[morseTestTag] == "Sim",
+		ComputerTest:         raw[computerTestTag] == "Sim",
+		Accountable:          raw[accountableTag],
+		Status:               raw[testStatusTag],
+		ContactPhone:         raw[contactPhoneTag],
+		MaxVacancies:         raw[maxVacanciesTag],
+		AvailableVacancies:   raw[availableVacancies],
+		Region:               raw[regionTag],
 	}
 
 	td.GenerateUID()
@@ -114,23 +114,22 @@ func Raw2StationData(raw map[string]string) StationData {
 	expirationDate, _ := time.Parse(dateFormat, raw[expirationDateTag])
 
 	station := StationData{
-		Owner: raw[ownerTag],
-		Certificate: raw[certificateTag],
-		InclusionDate: inclusionDate,
+		Owner:          raw[ownerTag],
+		Certificate:    raw[certificateTag],
+		InclusionDate:  inclusionDate,
 		ExpirationDate: expirationDate,
-		Callsign: raw[callsignTag],
-		City: raw[cityTag],
-		Service: raw[serviceTag],
-		StationType: raw[stationTypeTag],
-		Region: raw[regionTag],
-		FirstSaw: time.Now(),
+		Callsign:       raw[callsignTag],
+		City:           raw[cityTag],
+		Service:        raw[serviceTag],
+		StationType:    raw[stationTypeTag],
+		Region:         raw[regionTag],
+		FirstSaw:       time.Now(),
 	}
 
 	station.GenerateUID()
 
 	return station
 }
-
 
 func MapStationRawData(raw []map[string]string) []StationData {
 	var cls = make([]StationData, 0)
@@ -144,11 +143,11 @@ func MapStationRawData(raw []map[string]string) []StationData {
 
 func Raw2CallsignData(raw map[string]string) CallSign {
 	return CallSign{
-		Callsign: raw[callsignTag],
-		Region: raw[regionTag],
-		Class: raw[classTag],
+		Callsign:    raw[callsignTag],
+		Region:      raw[regionTag],
+		Class:       raw[classTag],
 		LastUpdated: time.Unix(0, 0),
-		FirstSaw: time.Now(),
+		FirstSaw:    time.Now(),
 	}
 }
 
@@ -167,13 +166,13 @@ func Raw2CertificateData(raw map[string]string) CertificateData {
 	expirationDate, _ := time.Parse(dateFormat, raw[expirationDateTag])
 
 	return CertificateData{
-		TaxId: raw[taxIdTag],
-		Class: raw[classTag],
-		Certificate: raw[certificateTag],
-		InclusionDate: inclusionDate,
+		TaxId:          raw[taxIdTag],
+		Class:          raw[classTag],
+		Certificate:    raw[certificateTag],
+		InclusionDate:  inclusionDate,
 		ExpirationDate: expirationDate,
-		Name: raw[nameTag],
-		Status: raw[statusTag],
+		Name:           raw[nameTag],
+		Status:         raw[statusTag],
 	}
 }
 
@@ -212,14 +211,14 @@ func Raw2RepeaterStationData(raw map[string]string) RepeaterStationData {
 	}
 
 	rept := RepeaterStationData{
-		RXFrequency: uint64(rxFreq),
-		TXFrequency: uint64(txFreq),
-		Callsign: callsign,
+		RXFrequency:   uint64(rxFreq),
+		TXFrequency:   uint64(txFreq),
+		Callsign:      callsign,
 		StationNumber: stationNumber,
-		City: raw[stationCityTag],
-		Region: raw[stationRegionTag],
-		StationType: raw[stationTypeTag2],
-		FirstSaw: time.Now(),
+		City:          raw[stationCityTag],
+		Region:        raw[stationRegionTag],
+		StationType:   raw[stationTypeTag2],
+		FirstSaw:      time.Now(),
 	}
 
 	rept.GenerateUID()

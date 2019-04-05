@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"github.com/jinzhu/gorm"
 	"github.com/racerxdl/anatel/models"
 	"github.com/tebeka/selenium"
-	"github.com/jinzhu/gorm"
+	"log"
 	"time"
-	"fmt"
 )
 
 func UpdateCallSigns(username, password, uf, class string, db *gorm.DB, driver selenium.WebDriver) {
@@ -55,7 +55,7 @@ func updateStationsSegment(length int, state string, firstTime time.Time, db *go
 
 	log.Println("Waiting for Station / Callsign data to be written")
 
-	newStations := <- ns
+	newStations := <-ns
 
 	log.Println("Triggering Notifications")
 
@@ -92,7 +92,7 @@ func UpdateStationsFlow(state string, db *gorm.DB, driver selenium.WebDriver) {
 			chunkSize = numCallSign
 		}
 
-		log.Printf("Fetching callsigns from %d to %d from %d records\n", pos, pos + chunkSize, totalCallsigns)
+		log.Printf("Fetching callsigns from %d to %d from %d records\n", pos, pos+chunkSize, totalCallsigns)
 		updateStationsSegment(chunkSize, state, firstTime, db, driver)
 		numCallSign -= chunkSize
 	}

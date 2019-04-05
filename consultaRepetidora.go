@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
-	"time"
-	"regexp"
-	"strconv"
-	"math"
 	"fmt"
 	"github.com/anaskhan96/soup"
+	"github.com/tebeka/selenium"
 	"log"
+	"math"
+	"regexp"
+	"strconv"
+	"time"
 )
 
 func consultaRepetidoras(username, password, uf string, webDriver selenium.WebDriver) []map[string]string {
@@ -39,7 +39,7 @@ func consultaRepetidoras(username, password, uf string, webDriver selenium.WebDr
 
 	elem.Click()
 
-	SeleniumWait(webDriver, 2000 * time.Millisecond)
+	SeleniumWait(webDriver, 2000*time.Millisecond)
 
 	//log.Println("Acessing Indicativos")
 	err = webDriver.Get(anatelSCRARepetidora)
@@ -55,14 +55,12 @@ func consultaRepetidoras(username, password, uf string, webDriver selenium.WebDr
 
 	elem.SendKeys(uf)
 
-
 	elem, err = webDriver.FindElement(selenium.ByID, "botaoFlatConfirmar")
 	if err != nil {
 		panic(err)
 	}
 
 	elem.Click()
-
 
 	elems, err := webDriver.FindElements(selenium.ByClassName, "SubTituloEsquerda")
 	if err != nil {
@@ -115,21 +113,21 @@ func consultaRepetidoras(username, password, uf string, webDriver selenium.WebDr
 
 	elem.SendKeys(fmt.Sprintf("%d", higherNumber))
 
-	_ , err = webDriver.ExecuteScript("AlteraNumReg();", nil)
+	_, err = webDriver.ExecuteScript("AlteraNumReg();", nil)
 
 	if err != nil {
 		panic(err)
 	}
 
-	SeleniumWait(webDriver, 100 * time.Millisecond)
+	SeleniumWait(webDriver, 100*time.Millisecond)
 
-	_ , err = webDriver.ExecuteScript("AlteraNumReg();", nil)
+	_, err = webDriver.ExecuteScript("AlteraNumReg();", nil)
 
 	if err != nil {
 		panic(err)
 	}
 
-	SeleniumWait(webDriver, 4000 * time.Millisecond)
+	SeleniumWait(webDriver, 4000*time.Millisecond)
 
 	content, err := webDriver.PageSource()
 

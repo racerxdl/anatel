@@ -1,28 +1,28 @@
 package main
 
 import (
-	"github.com/quan-to/handler"
-	"github.com/quan-to/graphql"
-	"log"
-	"net/http"
+	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/graphql/gqlerrors"
+	"github.com/graphql-go/handler"
 	"github.com/racerxdl/anatel/gql"
 	"github.com/racerxdl/anatel/models"
-	"github.com/quan-to/graphql/gqlerrors"
+	"log"
+	"net/http"
 	"runtime/debug"
 )
 
 func graphqlServer() {
 	var rootQuery = graphql.ObjectConfig{Name: "RootQuery", Fields: graphql.Fields{
 		"Callsign": &graphql.Field{
-			Type: gql.MakeGraphQLConnection(models.GQLCallSign),
+			Type:        gql.MakeGraphQLConnection(models.GQLCallSign),
 			Description: "Callsign Query",
 			Args: gql.MakeConnectionArgs(graphql.FieldConfigArgument{
 				"Callsign": {
-					Type: graphql.String,
+					Type:        graphql.String,
 					Description: "Callsign to search (can be partial, empty to return all)",
 				},
 				"Region": {
-					Type: graphql.String,
+					Type:        graphql.String,
 					Description: "Region to search (a.k.a. UF)",
 				},
 			}),
@@ -31,15 +31,15 @@ func graphqlServer() {
 			},
 		},
 		"Repeater": &graphql.Field{
-			Type: gql.MakeGraphQLConnection(models.GQLRepeaterStation),
+			Type:        gql.MakeGraphQLConnection(models.GQLRepeaterStation),
 			Description: "Repeaters Query",
 			Args: gql.MakeConnectionArgs(graphql.FieldConfigArgument{
 				"Callsign": {
-					Type: graphql.String,
+					Type:        graphql.String,
 					Description: "Callsign to search (can be partial, empty to return all)",
 				},
 				"Region": {
-					Type: graphql.String,
+					Type:        graphql.String,
 					Description: "Region to search (a.k.a. UF)",
 				},
 			}),
@@ -57,11 +57,11 @@ func graphqlServer() {
 	}
 
 	h := handler.New(&handler.Config{
-		Schema: &schema,
-		Pretty: true,
-		GraphiQL: false,
+		Schema:     &schema,
+		Pretty:     true,
+		GraphiQL:   false,
 		Playground: true,
-		CustomErrorFormatter: func(err error) gqlerrors.FormattedError {
+		FormatErrorFn: func(err error) gqlerrors.FormattedError {
 			log.Println(err)
 			log.Println(string(debug.Stack()))
 			return gqlerrors.FormatError(err)

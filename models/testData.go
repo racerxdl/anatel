@@ -1,33 +1,33 @@
 package models
 
 import (
-	"time"
-	"github.com/jinzhu/gorm"
-	"strings"
-	"strconv"
 	"encoding/hex"
+	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/sha3"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type TestData struct {
 	gorm.Model
-	UID string
-	Hash string
-	Certificates string
-	TestDate time.Time
-	InscriptionEndDate time.Time
-	ActiveInscriptions string
+	UID                  string
+	Hash                 string
+	Certificates         string
+	TestDate             time.Time
+	InscriptionEndDate   time.Time
+	ActiveInscriptions   string
 	CanceledInscriptions string
-	StartTime string
-	Address string
-	MorseTest bool
-	ComputerTest bool
-	Accountable string
-	Status string
-	ContactPhone string
-	MaxVacancies string
-	AvailableVacancies string
-	Region string
+	StartTime            string
+	Address              string
+	MorseTest            bool
+	ComputerTest         bool
+	Accountable          string
+	Status               string
+	ContactPhone         string
+	MaxVacancies         string
+	AvailableVacancies   string
+	Region               string
 }
 
 func (td *TestData) GenerateUID() {
